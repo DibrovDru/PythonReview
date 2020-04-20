@@ -10,8 +10,8 @@ def create_parser():
     parser.add_argument('way_old', type=argparse.FileType(mode = 'r'))
     parser.add_argument('way_new', type=argparse.FileType(mode='w'))
     parser.add_argument('command')
-    parser.add_argument('cipher')
-    parser.add_argument('key')
+    parser.add_argument('cipher', nargs='?')
+    parser.add_argument('key', nargs='?')
     return parser
 
 
