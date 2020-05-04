@@ -3,12 +3,14 @@ from collections import OrderedDict
 from scipy.spatial import distance
 from encrypt_or_decrypt import enc_or_dec_caesar
 
+
 def text_comparator(freq_dict1, freq_dict2):
     return distance.cosine(list(freq_dict1.values()),
                            list(freq_dict2.values()))
 
+
 def hacker_learning():
-    text = open('text for hacker learning', 'r')
+    text = open('text_for_hacker_learning', 'r')
     learn_text = text.read()
     dict_of_letters = OrderedDict()
     for i in range(len(low)):
