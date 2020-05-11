@@ -1,50 +1,64 @@
-from encrypt_or_decrypt import enc_or_dec_caesar
-from encrypt_or_decrypt import enc_or_dec_vizhener
-from encrypt_or_decrypt import enc_or_dec_vernam
-from hacker import hacker_func, hacker_learning
-import argparse
+from encrypt_or_decrypt import encrypt_caesar, encrypt_vizhener, encrypt_vernam
+from hacker import hacker_func
+import click
 
 
-def create_parser():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('way_old', type=argparse.FileType(mode='r'), nargs='?')
-    parser.add_argument('way_new', type=argparse.FileType(mode='w'), nargs='?')
-    parser.add_argument('command', choices=['encrypt', 'decrypt', 'broke'])
-    parser.add_argument('cipher', nargs='?',
-                        choices=['vizhener', 'caesar', 'vernam'])
-    parser.add_argument('key', nargs='?')
-    return parser
+class Context:
+    def __init__(self, input_filename, output_filename):
+        with open(input_filename) as f:
+            self.text = f.read()
+        self.output_filename = output_filename
+
+    def write(self, text):
+        if self.output_filename is None:
+            print(text)
+        else:
+            with open(self.output_filename, 'w') as f:
+                f.write(text)
 
 
-parser = create_parser()
-namespace = parser.parse_args()
+@click.group()
+@click.argument('input_file', required=True)
+@click.option('-o', 'output_file')
+@click.pass_context
+def cli(ctx, input_file, output_file=None):
+    ctx.obj = Context(input_file, output_file)
 
-if isinstance(namespace.way_old, type(None)) or\
-        isinstance(namespace.way_new, type(None) or
-                                      namespace.way_old == namespace.way_new):
-    print("You should write two different addresses")
-else:
-    old_text = namespace.way_old.read()
-    namespace.way_old.close()
 
-    if namespace.command == 'broke':
-        hacker_func(old_text, namespace.way_new, namespace)
+@cli.command()
+@click.option('--key', type=click.INT, required=True)
+@click.option('--decrypt', '-d', is_flag=True)
+@click.pass_obj
+def caesar(ctx, key, decrypt=False):
+    ctx.write(encrypt_caesar(ctx.text, key, decrypt=decrypt))
 
-    if namespace.command == 'decrypt' or namespace.command == 'encrypt':
-        if namespace.cipher == 'vizhener':
-            if not isinstance(namespace.key, type(None)):
-                enc_or_dec_vizhener(old_text, namespace.way_new, namespace)
-            else:
-                print("I think that You should enter a key")
 
-        if namespace.cipher == 'caesar':
-            if not isinstance(namespace.key, type(None)):
-                enc_or_dec_caesar(old_text, namespace.way_new, namespace)
-            else:
-                print("I think that You should enter a key")
+@cli.command()
+@click.option('--key', required=True)
+@click.option('--decrypt', '-d', is_flag=True)
+@click.pass_obj
+def vizhener(ctx, key, decrypt=False):
+    if not all(sym.isalpha() for sym in key):
+        print("key must contain only letters")
+        return
+    ctx.write(encrypt_vizhener(ctx.text, key, decrypt=decrypt))
 
-        if namespace.cipher == 'vernam':
-            if not isinstance(namespace.key, type(None)):
-                enc_or_dec_vernam(old_text, namespace.way_new, namespace)
-            else:
-                print("I think that You should enter a key")
+@cli.command()
+@click.option('--key', required=True)
+@click.option('--decrypt', '-d', is_flag=True)
+@click.pass_obj
+def vernam(ctx, key, decrypt=False):
+    if not all(sym.isalpha() for sym in key):
+        print("key must contain only letters")
+        return
+    ctx.write(encrypt_vernam(ctx.text, key, decrypt=decrypt))
+
+
+@cli.command()
+@click.pass_obj
+def broke(ctx):
+    ctx.write(hacker_func(ctx.text))
+
+
+if __name__ == '__main__':
+    cli()

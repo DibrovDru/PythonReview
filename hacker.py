@@ -1,7 +1,7 @@
 from string import ascii_lowercase as low
 from collections import OrderedDict
 from scipy.spatial import distance
-from encrypt_or_decrypt import enc_or_dec_caesar
+from encrypt_or_decrypt import encrypt_caesar
 
 
 def text_comparator(freq_dict1, freq_dict2):
@@ -13,14 +13,14 @@ def hacker_learning():
     text = open('text_for_hacker_learning', 'r')
     learn_text = text.read()
     dict_of_letters = OrderedDict()
-    for i in range(len(low)):
-        dict_of_letters[low[i]] = 0.0
+    for letter in low:
+        dict_of_letters[letter] = 0.0
 
-    for i in range(len(learn_text)):
-        if not learn_text[i].isalpha():
+    for letter in learn_text:
+        if not letter.isalpha():
             continue
         else:
-            temp_letter = learn_text[i].lower()
+            temp_letter = letter.lower()
             dict_of_letters[temp_letter] += 1
 
     dict_of_letters = letter_percent_count(dict_of_letters)
@@ -38,16 +38,16 @@ def letter_percent_count(letter_dict):
     return letter_dict
 
 
-def hacker_func(old_text, new_file, namespace):
+def hacker_func(text):
     learn_dict = hacker_learning()
     real_dict = OrderedDict()
-    for i in range(len(low)):
-        real_dict[low[i]] = 0.0
-    for i in range(len(old_text)):
-        if not old_text[i].isalpha():
+    for letter in low:
+        real_dict[letter] = 0.0
+    for letter in text:
+        if not letter.isalpha():
             continue
         else:
-            temp_letter = old_text[i].lower()
+            temp_letter = letter.lower()
             real_dict[temp_letter] += 1
 
     real_dict = letter_percent_count(real_dict)
@@ -65,7 +65,5 @@ def hacker_func(old_text, new_file, namespace):
             key = step
             min_length = temp_dif
 
-    namespace.command = 'decrypt'
-    namespace.cipher = 'caesar'
-    namespace.key = str(key)
-    enc_or_dec_caesar(old_text, new_file, namespace)
+    decrypt = True
+    return encrypt_caesar(text, key, decrypt)
